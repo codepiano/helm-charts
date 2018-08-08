@@ -1,0 +1,19 @@
+{{- if .Values.configmap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "common.project_name" . }}
+  labels:
+    app: {{ template "common.project_name" . }}
+    chart: {{ template "common.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    env: {{ .Release.Namespace }}
+{{- if .Values.tier }}
+    tier: {{ .Values.tier }}
+{{- end }}
+{{- if .Values.team }}
+    team: {{ .Values.team }}
+{{- end }}
+data: {{ template "configmap" . }}
+{{- end }}

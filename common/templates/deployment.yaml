@@ -1,0 +1,81 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "common.fullname" . }}
+  labels:
+    app: {{ template "common.project_name" . }}
+    chart: {{ template "common.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    env: {{ .Release.Namespace }}
+{{- if .Values.tier }}
+    tier: {{ .Values.tier }}
+{{- end }}
+{{- if .Values.team }}
+    team: {{ .Values.team }}
+{{- end }}
+{{- if .Values.deployment.annotations }}
+  annotations:
+{{ toYaml .Values.deployment.annotations | indent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "common.project_name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "common.project_name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ template "common.project_name" . }}
+          image: {{ "\"" }}{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ template "image.tag" . }}{{ "\"" }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+{{- include "env" . | indent 10 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.container.port }}
+              protocol: TCP
+{{- if .Values.container.livenessProbe }}
+          livenessProbe:
+{{ toYaml .Values.container.livenessProbe | indent 12 }}
+{{- end -}}
+
+{{- if .Values.container.readinessProbe }}
+          readinessProbe:
+{{ toYaml .Values.container.readinessProbe | indent 12 -}}
+{{- end }}
+
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+
+          volumeMounts:
+{{- if .Values.pvc }}
+{{- range $pvc := .Values.pvc }}
+            - name: {{ $pvc.volumnName }}
+              mountPath: {{ $pvc.mountPath }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 8 }}
+{{- end }}
+
+{{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+{{- end }}
+
+{{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+{{- end }}
+
+{{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+{{- end }}

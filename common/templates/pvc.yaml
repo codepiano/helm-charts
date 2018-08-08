@@ -1,0 +1,22 @@
+{{- if .Values.pvc }}
+{{- range $pvc := .Values.pvc }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $pvc.name }}
+spec:
+  accessModes:
+{{ toYaml $pvc.accessModes | indent 4 }}
+  storageClassName: {{ $pvc.storageClassName }}
+  resources:
+    requests:
+{{- if $pvc.storage }}
+      storage: {{ $pvc.storage }}
+{{- end }}
+{{- if $pvc.selector }}
+  selector:
+{{ toYaml $pvc.selector | indent 4 }}
+{{- end }}
+---
+{{- end }}
+{{- end }}

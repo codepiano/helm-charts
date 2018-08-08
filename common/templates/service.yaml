@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "common.fullname" . }}
+  labels:
+    app: {{ template "common.project_name" . }}
+    chart: {{ template "common.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    env: {{ .Release.Namespace }}
+{{- if .Values.tier }}
+    tier: {{ .Values.tier }}
+{{- end }}
+{{- if .Values.team }}
+    team: {{ .Values.team }}
+{{- end }}
+{{- if .Values.service.annotations }}
+  annotations:
+{{ toYaml .Values.service.annotations | indent 4 }}
+{{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      {{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "common.project_name" . }}
+    release: {{ .Release.Name }}
