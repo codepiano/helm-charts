@@ -3,7 +3,25 @@ entries:
   common:
   - apiVersion: v1
     appVersion: "1.0"
-    created: 2018-08-09T10:50:42.183661193+08:00
+    created: 2018-08-09T17:40:11.085097264+08:00
+    description: A Helm chart to deploy common apps
+    digest: fd9ed4b1828cbc0906255a0037391a02374718bd866df5713a456c3bac230144
+    home: https://github.com/codepiano/helm-charts
+    keywords:
+    - common
+    - deploy
+    maintainers:
+    - email: codepiano.li@gmail.com
+      name: codepiano
+    name: common
+    sources:
+    - https://github.com/codepiano/helm-charts
+    urls:
+    - common-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: 2018-08-09T17:40:11.08461354+08:00
     description: A Helm chart to deploy common apps
     digest: c4abbb191379051082a25148599964377d0869bedebfe20dd90789efec1c621c
     home: https://github.com/codepiano/helm-charts
@@ -19,4 +37,4 @@ entries:
     urls:
     - common-1.0.0.tgz
     version: 1.0.0
-generated: 2018-08-09T10:50:42.181790117+08:00
+generated: 2018-08-09T17:40:11.083400222+08:00

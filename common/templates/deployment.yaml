@@ -1,9 +1,10 @@
+{{- $projectName := include "common.project_name" . -}}
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: {{ template "common.fullname" . }}
   labels:
-    app: {{ template "common.project_name" . }}
+    app: {{ $projectName }}
     chart: {{ template "common.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -22,16 +23,16 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "common.project_name" . }}
+      app: {{ $projectName }}
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ template "common.project_name" . }}
+        app: {{ $projectName }}
         release: {{ .Release.Name }}
     spec:
       containers:
-        - name: {{ template "common.project_name" . }}
+        - name: {{ $projectName }}
           image: {{ "\"" }}{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ template "image.tag" . }}{{ "\"" }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
 {{- include "env" . | indent 10 }}
@@ -53,12 +54,17 @@ spec:
 {{ toYaml .Values.resources | indent 12 }}
 
           volumeMounts:
+{{- $context := dict "containerName"  (default $projectName .Values.container.name)  "Values" .Values -}}
+{{- include "configmap.volume.mount" $context | indent 12 }}
 {{- if .Values.pvc }}
 {{- range $pvc := .Values.pvc }}
             - name: {{ $pvc.volumnName }}
               mountPath: {{ $pvc.mountPath }}
 {{- end }}
 {{- end }}
+
+      volumes:
+{{- include "configmap.mount" . | indent 8 }}
 
 {{- if .Values.imagePullSecrets }}
       imagePullSecrets:

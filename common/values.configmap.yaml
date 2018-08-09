@@ -1,0 +1,21 @@
+configmap:
+  - volume_name: volume1
+    mount_path: /base1
+    files:
+      - file_name: test1.yaml
+        file_path: test1
+        file_content: |+
+          test file
+
+          test file
+
+      - file_name: test2.yaml
+        file_content: |+
+          test file
+
+  - volume_name: volume2
+    mount_path: /base2
+    files:
+    - file_name: test3.yaml
+      file_content: |+
+        test file

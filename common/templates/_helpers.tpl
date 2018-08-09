@@ -58,26 +58,94 @@ Create env
 {{- end -}}
 
 {{/*
-Create configmap
+Create file content as configmap
 */}}
-{{- define "configmap" -}}
+{{- define "configmap.file" -}}
 {{- $type := typeOf .Values.configmap -}}
 {{- if eq $type "[]interface {}" -}}
-{{ template "config.file" .Values.configmap }}
+{{ template "configmap.entry" .Values.configmap }}
 {{- else if eq $type "map[string]interface {}" -}}
 {{- range $service := .Values.configmap }}
-{{ template "config.file" $service }}
+{{ template "configmap.entry" $service }}
 {{- end }}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Configmap helper function
+Configmap helper function, generate entry
 */}}
-{{- define "config.file" -}}
-{{- range $file := . }}
-{{ printf "%s: |+" $file.file_name | indent 2 }}
-{{ $file.file_content | indent 4 }}
+{{- define "configmap.entry" -}}
+{{- range $entry := . }}
+{{- range $file := $entry.files }}
+{{ printf "%s: |+" $file.file_name }}
+{{ $file.file_content | indent 2 }}
+{{- end }}
 {{- end }}
 {{- end -}}
 
+{{/*
+Configmap helper function, mount configmap as files
+*/}}
+{{- define "configmap.mount" -}}
+{{- $type := typeOf .Values.configmap -}}
+{{- $context := dict "project_name" .Values.projectName -}}
+{{- if eq $type "[]interface {}" -}}
+{{- $_ := set $context "configmap" .Values.configmap -}}
+{{ template "configmap.entry.volume" $context }}
+{{- else if eq $type "map[string]interface {}" -}}
+{{- range $key, $configs := .Values.configmap }}
+{{- $_ := set $context "service" $key -}}
+{{- $_ := set $context "configmap" $configs -}}
+{{ template "configmap.entry.volume" $context }}
+{{- end }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Configmap helper function, generate volumes info
+*/}}
+{{- define "configmap.entry.volume" }}
+{{- range $volume := .configmap }}
+{{ printf "- name: %s-%s" (default "config-files" $.service) (required "entries in .Values.configmap must have volume_name property" .volume_name) }}
+{{ printf "%s" "configMap:" | indent 2 }}
+{{ printf "name: %s" $.project_name | indent 4 }}
+{{ printf "%s" "items:" | indent 4 -}}
+{{ include "configmap.entry.file" $volume.files | indent 4 }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Configmap helper function, generate entry info
+*/}}
+{{- define "configmap.entry.file" }}
+{{- range $file := . }}
+{{ printf "- key: %s" $file.file_name }}
+{{ printf "path: %s" (default $file.file_name $file.file_path) | indent 2 }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Configmap helper function, mount configmap entry to pod
+*/}}
+{{- define "configmap.volume.mount" }}
+{{- $context := dict "containerName"  (default "config-files" .containerName) -}}
+{{- $type := typeOf .Values.configmap -}}
+{{- if eq $type "[]interface {}" -}}
+{{- $_ := set $context "volumes" .Values.configmap -}}
+{{ template "configmap.volume.mount.entry" $context }}
+{{- else if eq $type "map[string]interface {}" -}}
+{{ $volumes := (pluck .containerName .Values.configmap) | first }}
+{{- $_ := set $context "volumes" $volumes -}}
+{{ template "configmap.volume.mount.entry" $context }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Configmap helper function, generate volume mount entry
+*/}}
+{{- define "configmap.volume.mount.entry" }}
+{{- range $volumeMount := .volumes }}
+{{ printf "- name: %s-%s" $.containerName $volumeMount.volume_name }}
+{{ printf "mountPath: %s" $volumeMount.mount_path | indent 2 }}
+{{- end }}
+{{- end -}}

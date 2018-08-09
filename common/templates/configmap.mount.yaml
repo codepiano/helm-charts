@@ -15,5 +15,5 @@ metadata:
 {{- if .Values.team }}
     team: {{ .Values.team }}
 {{- end }}
-data: {{ template "configmap" . }}
+data: {{ include "configmap.file" . | indent 2 }}
 {{- end }}
