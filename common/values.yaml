@@ -66,20 +66,20 @@ ingress:
 deployment:
   annotations: {}
 
-pvc:
-  - name: nfs-1
-    volumnName: nfs-1
-    mountPath: /nfs-1
-    accessModes:
-      - ReadWriteMany
-      - ReadWriteOnce
-    storageClassName: "test"
-    storage: 1Mi
-    selector:
-      matchLabels:
-        release: "stable"
-      matchExpressions:
-        - "{key: environment, operator: In, values: [dev]}"
+#pvc:
+#  - name: nfs-1
+#    volumnName: nfs-1
+#    mountPath: /nfs-1
+#    accessModes:
+#      - ReadWriteMany
+#      - ReadWriteOnce
+#    storageClassName: "test"
+#    storage: 1Mi
+#    selector:
+#      matchLabels:
+#        release: "stable"
+#      matchExpressions:
+#        - "{key: environment, operator: In, values: [dev]}"
 
 resources: # 资源限制
   limits:
