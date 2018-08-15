@@ -22,7 +22,6 @@ image:
 
 # 容器相关配置
 container:
-  port: 8080 # 容器中服务监听的端口，对应 service 中的端口
   env: {}
   livenessProbe:   # 容器探针，k8s 使用探针判断容器是否需要重启
     tcpSocket:
@@ -46,7 +45,16 @@ container:
 service:
   annotations: {}
   type: ClusterIP # 服务暴露的类型
-  port: 80
+  expose:
+    - port: 80
+      name: http1
+      targetPort: 8080
+      protocol: TCP
+    - port: 8000
+      name: http2
+      targetPort: 8081
+      protocol: TCP
+  blackbox: tcp
 
 # ingress 配置
 ingress:

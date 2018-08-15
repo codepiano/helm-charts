@@ -21,13 +21,15 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      {{- if .Values.service.nodePort }}
-      nodePort: {{ .Values.service.nodePort }}
+{{- range $service := .Values.service.expose }}
+    - name: {{ $service.name }}
+      port: {{ $service.port }}
+      {{- if $service.nodePort }}
+      nodePort: {{ $service.nodePort }}
       {{- end }}
-      targetPort: http
-      protocol: TCP
-      name: http
+      targetPort: {{ $service.targetPort }}
+      protocol: {{ $service.protocol | default "TCP" }}
+{{- end }}
   selector:
     app: {{ template "common.project_name" . }}
     release: {{ .Release.Name }}
