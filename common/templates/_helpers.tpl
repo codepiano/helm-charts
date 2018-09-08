@@ -128,12 +128,13 @@ Configmap helper function, generate entry info
 Configmap helper function, mount configmap entry to pod
 */}}
 {{- define "configmap.volume.mount" }}
-{{- $context := dict "containerName"  (default "config-files" .containerName) -}}
 {{- $type := typeOf .Values.configmap -}}
 {{- if eq $type "[]interface {}" -}}
+{{- $context := dict "containerName" "config-files" -}}
 {{- $_ := set $context "volumes" .Values.configmap -}}
 {{ template "configmap.volume.mount.entry" $context }}
 {{- else if eq $type "map[string]interface {}" -}}
+{{- $context := dict "containerName"  (default "config-files" .containerName) -}}
 {{ $volumes := (pluck .containerName .Values.configmap) | first }}
 {{- $_ := set $context "volumes" $volumes -}}
 {{ template "configmap.volume.mount.entry" $context }}
