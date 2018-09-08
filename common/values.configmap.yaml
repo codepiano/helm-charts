@@ -1,6 +1,7 @@
 configmap:
   - volume_name: volume1
     mount_path: /base1
+    sub_path: abc
     files:
       - file_name: test1.yaml
         file_path: test1

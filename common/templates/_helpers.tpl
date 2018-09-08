@@ -148,5 +148,8 @@ Configmap helper function, generate volume mount entry
 {{- range $volumeMount := .volumes }}
 {{ printf "- name: %s-%s" $.containerName $volumeMount.volume_name }}
 {{ printf "mountPath: %s" $volumeMount.mount_path | indent 2 }}
+{{ if $volumeMount.sub_path -}}
+{{ printf "subPath: %s" $volumeMount.sub_path | indent 2 }}
+{{- end }}
 {{- end }}
 {{- end -}}
