@@ -6,8 +6,8 @@ kind: Ingress
 metadata:
   name: {{ $name }}
   labels:
-    app: {{ template "springboot.project_name" $ }}
-    chart: {{ template "springboot.chart" $ }}
+    app: {{ template "common.project_name" $ }}
+    chart: {{ template "common.chart" $ }}
     release: {{ $.Release.Name }}
     heritage: {{ $.Release.Service }}
 {{- with $ingress.annotations }}
