@@ -1,31 +1,23 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "common.fullname" . -}}
-{{- $servicePort := .Values.service.port -}}
-{{- $ingressPath := .Values.ingress.path -}}
+{{- range $ingress := .Values.ingress.entryArray }}
+{{- $name := $ingress.name -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ $name }}
   labels:
-    app: {{ template "common.project_name" . }}
-    chart: {{ template "common.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-    env: {{ .Release.Namespace }}
-{{- if .Values.tier }}
-    tier: {{ .Values.tier }}
-{{- end }}
-{{- if .Values.team }}
-    team: {{ .Values.team }}
-{{- end }}
-{{- with .Values.ingress.annotations }}
+    app: {{ template "springboot.project_name" $ }}
+    chart: {{ template "springboot.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+{{- with $ingress.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
 {{- end }}
 spec:
-{{- if .Values.ingress.tls }}
+{{- if $ingress.tls }}
   tls:
-  {{- range .Values.ingress.tls }}
+  {{- range $ingress.tls }}
     - hosts:
       {{- range .hosts }}
         - {{ . }}
@@ -34,13 +26,17 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
-    - host: {{ . }}
+  {{- range $ingress.hosts }}
+    - host: {{ .host }}
       http:
         paths:
-          - path: {{ $ingressPath }}
+          {{- range .paths }}
+          - path: {{ .path }}
             backend:
-              serviceName: {{ $fullName }}
-              servicePort: 80
+              serviceName: {{ .service_name }}
+              servicePort: {{ .service_port }}
+          {{- end }}
   {{- end }}
+---
+{{ end }}
 {{- end }}
