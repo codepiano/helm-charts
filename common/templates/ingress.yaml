@@ -1,4 +1,4 @@
-{{- if .Values.ingress.enabled -}}
+{{- if and .Values.ingress -}}
 {{- range $ingress := .Values.ingress.entryArray }}
 {{- $name := $ingress.name -}}
 apiVersion: extensions/v1beta1

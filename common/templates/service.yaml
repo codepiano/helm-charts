@@ -1,3 +1,4 @@
+{{- if and .Values.serivce -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -33,3 +34,4 @@ spec:
   selector:
     app: {{ template "common.project_name" . }}
     release: {{ .Release.Name }}
+{{- end }}

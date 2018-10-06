@@ -31,9 +31,12 @@ spec:
         app: {{ $projectName }}
         release: {{ .Release.Name }}
     spec:
+{{- if eq .Values.hostNetwork true }}
+      hostNetwork: true
+{{- end }}
       containers:
         - name: {{ $projectName }}
-          image: {{ "\"" }}{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ template "image.tag" . }}{{ "\"" }}
+          image: {{ "\"" }}{{ if .Values.image.repository }}{{ .Values.image.repository }}/{{ end }}{{ .Values.image.name }}:{{ template "image.tag" . }}{{ "\"" }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
 {{- include "env" . | indent 10 }}
           ports:
